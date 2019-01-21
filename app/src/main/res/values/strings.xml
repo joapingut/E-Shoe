@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">E-Shoe</string>
+    <string name="button_scan">Scan</string>
 </resources>
