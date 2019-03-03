@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">E-Shoe</string>
+    <string name="app_name" translatable="false">E-Shoe</string>
     <string name="button_scan">Scan</string>
+    <string name="image_example">Device example image</string>
+    <string name="scan_empty_header">No result</string>
+    <string name="scan_empty_body">Devices not found, please, check that all the connections are good</string>
 </resources>

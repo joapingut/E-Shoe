@@ -40,6 +40,7 @@ public class JavaMainActivity extends AppCompatActivity {
     private Handler mHandler;
 
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_SCAN_BT = 2;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 1000;
 
@@ -48,6 +49,8 @@ public class JavaMainActivity extends AppCompatActivity {
 
     private Button btnScan = null;
     private EditText edittxt = null;
+
+    private Manager manager;
 
     private ScanCallback mLeScanCallback =
             new ScanCallback() {
@@ -87,6 +90,7 @@ public class JavaMainActivity extends AppCompatActivity {
         btnScan = findViewById(R.id.button_scan);
         edittxt = findViewById(R.id.text_send);
         mHandler = new Handler();
+        manager = new Manager(this, mHandler);
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -131,6 +135,9 @@ public class JavaMainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish();
             return;
+        } else if (requestCode == REQUEST_SCAN_BT && resultCode == ScanActivity.SCAN_RESULT_CODE_FOUND){
+            BluetoothDevice device = data.getParcelableExtra(ScanActivity.SCAN_RESULT_DEVICE);
+            manager.connectToNewDevice(device);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -140,6 +147,7 @@ public class JavaMainActivity extends AppCompatActivity {
         super.onPause();
         scanLeDevice(false);
     }
+
 
 
     public void onBtnScan(View v){
@@ -169,8 +177,15 @@ public class JavaMainActivity extends AppCompatActivity {
         }
     }
 
+    public void onBtnToScan(View v){
+        Intent intent = new Intent(this, ScanActivity.class);
+        startActivityForResult(intent, REQUEST_SCAN_BT);
+    }
+
     public void scanLeDevice(final boolean enable) {
-        //ScanSettings mScanSettings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_BALANCED).setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build();
+        if (mBluetoothLeScanner == null){
+            return;
+        }
 
         if (enable) {
             mScanning = true;
