@@ -4,18 +4,15 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
-
-import es.joapingut.eshoe.Manager;
 
 public class RealEShoe extends BluetoothGattCallback implements EShoe {
 
@@ -24,7 +21,8 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
 
     public static final int MAX_RECON_NUMBER = 4;
     public static final int RECON_DELAY = 5000;
-    public static final int WRITE_DELAY = 100;
+    public static final int WRITE_DELAY = 10;
+    public static final int RESPONSE_DELAY = 150;
     public static final int BUFFER_TAM = 256;
 
     private BluetoothGatt mGatt;
@@ -37,7 +35,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     private int lastByte;
     private Semaphore bufferSemaphore;
 
-    public RealEShoe(Context context, Handler mHandler, BluetoothDevice device){
+    public RealEShoe(Context context, Handler mHandler, @NonNull BluetoothDevice device){
         this.mHandler = mHandler;
         this.mStatus = EShoeStatus.CONNECTING;
         this.inputBuffer = new byte[BUFFER_TAM];
@@ -45,6 +43,40 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
         this.bufferSemaphore = new Semaphore(1);
         this.mGatt = device.connectGatt(context, false, this, BluetoothDevice.TRANSPORT_LE);
         mGatt.connect();
+    }
+
+    public void queryForData(EShoeDataType type) throws InterruptedException {
+        writeSerialString(EShoeUtils.getDefaultForType(type));
+    }
+
+    public EShoeData queryForResponse() throws InterruptedException {
+        EShoeData result = new EShoeData();
+        result.setType(EShoeDataType.DT_NO_RESPONSE);
+        Thread.sleep(RESPONSE_DELAY);
+        byte[] buffer = readFromBuffer();
+        for (int i = 0; i < MAX_RECON_NUMBER; i++) {
+            result = EShoeUtils.interpretData(buffer);
+            if (result.getType() == EShoeDataType.DT_NO_RESPONSE) {
+                Thread.sleep(RESPONSE_DELAY);
+                buffer = EShoeUtils.mergeByteArray(buffer, readFromBuffer());
+            } else {
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public EShoeData getData() {
+        EShoeData result = new EShoeData();
+        result.setType(EShoeDataType.DT_NO_RESPONSE);
+        try{
+            queryForData(EShoeDataType.DT_DIME);
+            result = queryForResponse();
+        } catch (InterruptedException ex){
+            Log.e("EShoe", "Error on getData", ex);
+        }
+        return result;
     }
 
     public EShoeStatus onConnectionStateChange(int newState){
@@ -86,16 +118,28 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
         this.onConnectionStateChange(newState);
     }
 
-    private void writeSerialString(String command) throws InterruptedException {
+    private void writeSerialString(byte[] command) throws InterruptedException {
         if (mGatt != null){
             BluetoothGattCharacteristic chara = mGatt.getService(SH_H8_UUID).getCharacteristic(SH_H8_RX_TX);
             int size = 20;
-            if (command.length() > 20){
-                for (int i = 0; i < command.length(); i += size) {
-                    chara.setValue(command.substring(i, Math.min(command.length(), i + size)));
+            if (command.length > 20){
+                for (int i = 0; i < command.length; i += size) {
+                    chara.setValue(Arrays.copyOfRange(command, i, Math.min(command.length, i + size)));
                     mGatt.writeCharacteristic(chara);
                     Thread.sleep(WRITE_DELAY);
                 }
+            } else {
+                for (int i = 0; i < command.length; i++ ){
+                    chara.setValue(Arrays.copyOfRange(command, i, i + 1));
+                    mGatt.writeCharacteristic(chara);
+                    Thread.sleep(WRITE_DELAY);
+                }
+                /*
+                chara.setValue(command);
+                mGatt.writeCharacteristic(chara);
+                Thread.sleep(WRITE_DELAY);
+                chara.setValue("\n");
+                mGatt.writeCharacteristic(chara);*/
             }
         }
     }
@@ -140,6 +184,16 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         gatt.setCharacteristicNotification(gatt.getService(SH_H8_UUID).getCharacteristic(SH_H8_RX_TX), true);
+    }
+
+    @Override
+    public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        super.onCharacteristicWrite(gatt, characteristic, status);
+        Log.i("onCharacteristicWrite", "onCharacteristicWrite " + characteristic.getUuid().toString());
+
+        if (SH_H8_RX_TX.equals(characteristic.getUuid())) {
+            Log.d("onCharacteristicWrite", "Received data RX: " + characteristic.getStringValue(0));
+        }
     }
 
     public BluetoothGatt getmGatt() {

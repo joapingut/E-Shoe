@@ -4,4 +4,7 @@
     <string name="image_example">Device example image</string>
     <string name="scan_empty_header">No result</string>
     <string name="scan_empty_body">Devices not found, please, check that all the connections are good</string>
+    <string name="debug_noinfo">No info</string>
+    <string name="debug_nodevice">No device</string>
+    <string name="device_getData">Get Data</string>
 </resources>

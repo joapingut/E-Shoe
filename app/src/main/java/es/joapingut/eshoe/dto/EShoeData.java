@@ -1,0 +1,141 @@
+package es.joapingut.eshoe.dto;
+
+public class EShoeData {
+
+    private EShoe.EShoeDataType type;
+
+    private float fsr1;
+    private float fsr2;
+    private float fsr3;
+    private float fsr4;
+    private float fsr5;
+    private float fsr6;
+    private float fsr7;
+
+    public void setData(int i, float data){
+        switch (i){
+            case 1:
+                fsr1 = data;
+                break;
+            case 2:
+                fsr2 = data;
+                break;
+            case 3:
+                fsr3 = data;
+                break;
+            case 4:
+                fsr4 = data;
+                break;
+            case 5:
+                fsr5 = data;
+                break;
+            case 6:
+                fsr6 = data;
+                break;
+            case 7:
+                fsr7 = data;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public float getData(int i){
+        switch (i){
+            case 1:
+                return fsr1;
+            case 2:
+                return fsr2;
+            case 3:
+                return fsr3;
+            case 4:
+                return fsr4;
+            case 5:
+                return fsr5;
+            case 6:
+                return fsr6;
+            case 7:
+                return fsr7;
+            default:
+                return 0;
+        }
+    }
+
+    public float getFsr1() {
+        return fsr1;
+    }
+
+    public void setFsr1(float fsr1) {
+        this.fsr1 = fsr1;
+    }
+
+    public float getFsr2() {
+        return fsr2;
+    }
+
+    public void setFsr2(float fsr2) {
+        this.fsr2 = fsr2;
+    }
+
+    public float getFsr3() {
+        return fsr3;
+    }
+
+    public void setFsr3(float fsr3) {
+        this.fsr3 = fsr3;
+    }
+
+    public float getFsr4() {
+        return fsr4;
+    }
+
+    public void setFsr4(float fsr4) {
+        this.fsr4 = fsr4;
+    }
+
+    public float getFsr5() {
+        return fsr5;
+    }
+
+    public void setFsr5(float fsr5) {
+        this.fsr5 = fsr5;
+    }
+
+    public float getFsr6() {
+        return fsr6;
+    }
+
+    public void setFsr6(float fsr6) {
+        this.fsr6 = fsr6;
+    }
+
+    public float getFsr7() {
+        return fsr7;
+    }
+
+    public void setFsr7(float fsr7) {
+        this.fsr7 = fsr7;
+    }
+
+    public EShoe.EShoeDataType getType() {
+        return type;
+    }
+
+    public void setType(EShoe.EShoeDataType type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "EShoeData{" +
+                "type=" + type +
+                ", fsr1=" + fsr1 +
+                ", fsr2=" + fsr2 +
+                ", fsr3=" + fsr3 +
+                ", fsr4=" + fsr4 +
+                ", fsr5=" + fsr5 +
+                ", fsr6=" + fsr6 +
+                ", fsr7=" + fsr7 +
+                '}';
+    }
+}

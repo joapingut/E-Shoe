@@ -3,92 +3,45 @@ package es.joapingut.eshoe;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.Date;
+
+import es.joapingut.eshoe.dto.EShoeData;
 
 /**
  * https://stackoverflow.com/questions/42648150/simple-android-ble-scanner
  */
 public class JavaMainActivity extends AppCompatActivity {
 
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothLeScanner mBluetoothLeScanner;
-    private BluetoothGatt mGatt;
-    private boolean mScanning;
     private Handler mHandler;
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_SCAN_BT = 2;
-    // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 1000;
 
-    public static UUID SH_H8_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
-    public static UUID SH_H8_RX_TX = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
-
-    private Button btnScan = null;
-    private EditText edittxt = null;
+    private TextView lbldebug;
 
     private Manager manager;
 
-    private ScanCallback mLeScanCallback =
-            new ScanCallback() {
-
-                @Override
-                public void onScanResult(int callbackType, ScanResult result) {
-                    Log.i("callbackType", String.valueOf(callbackType));
-                    Log.i("result", result.toString());
-                    BluetoothDevice found = result.getDevice();
-                    if(mGatt ==  null && "88:3F:4A:E5:F6:85".equalsIgnoreCase(found.getAddress())){
-                        mGatt = found.connectGatt(getApplicationContext(), false, gattCallback, BluetoothDevice.TRANSPORT_LE);
-                        mScanning = true;
-                        mBluetoothLeScanner.stopScan(this);
-                    }
-                }
-
-                @Override
-                public void onBatchScanResults(List<ScanResult> results) {
-                    for (ScanResult sr : results) {
-                        Log.i("ScanResult - Results", sr.toString());
-                    }
-                }
-
-                @Override
-                public void onScanFailed(int errorCode) {
-                    super.onScanFailed(errorCode);
-                    Log.i("BLE", "error");
-                }
-            };
-
+    private BluetoothAdapter mBluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btnScan = findViewById(R.id.button_scan);
-        edittxt = findViewById(R.id.text_send);
+        lbldebug = findViewById(R.id.lblDebug);
         mHandler = new Handler();
         manager = new Manager(this, mHandler);
 
@@ -111,8 +64,6 @@ public class JavaMainActivity extends AppCompatActivity {
             finish();
             return;
         }
-
-        mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
     }
 
     @Override
@@ -145,35 +96,25 @@ public class JavaMainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        scanLeDevice(false);
     }
 
 
 
     public void onBtnScan(View v){
-        if (mScanning){
-            mScanning = false;
-            scanLeDevice(false);
-            btnScan.setText("STOP");
-        } else {
-            mScanning = true;
-            scanLeDevice(true);
-            btnScan.setText("SCAN");
-        }
+
     }
 
-    public void onBtnSend(View v) throws InterruptedException {
-        if (mGatt != null){
-            BluetoothGattCharacteristic chara = mGatt.getService(SH_H8_UUID).getCharacteristic(SH_H8_RX_TX);
-            String txt = edittxt.getText().toString();
-            int size = 20;
-            if (txt.length() > 20){
-                for (int i = 0; i < txt.length(); i += size) {
-                    chara.setValue(txt.substring(i, Math.min(txt.length(), i + size)));
-                    mGatt.writeCharacteristic(chara);
-                    Thread.sleep(100);
+    public void onBtnSend(View v){
+        if (manager.isActualConnected() && manager.isNotAsking()){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    EShoeData data = manager.queryActiveForData();
+                    lbldebug.setText(new Date() + " - " + data.toString());
                 }
-            }
+            }, 100);
+        } else {
+            Toast.makeText(this, "Wait Please", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -182,110 +123,8 @@ public class JavaMainActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_SCAN_BT);
     }
 
-    public void scanLeDevice(final boolean enable) {
-        if (mBluetoothLeScanner == null){
-            return;
-        }
-
-        if (enable) {
-            mScanning = true;
-            Log.i("Scanning", "start");
-            mBluetoothLeScanner.startScan(mLeScanCallback);
-            /*mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-
-
-                }
-            }, SCAN_PERIOD);*/
-        } else {
-            Log.i("Scanning", "stop");
-            mScanning = false;
-            mBluetoothLeScanner.stopScan(mLeScanCallback);
-        }
-    }
-
     @Override
     protected void onDestroy() {
-        if (mGatt != null) {
-            mGatt.close();
-            mGatt = null;
-        }
         super.onDestroy();
     }
-
-    private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            Log.i("onConnectionStateChange", "Status: " + status);
-            switch (newState) {
-                case BluetoothProfile.STATE_CONNECTED:
-                    Log.i("gattCallback", "STATE_CONNECTED");
-                    gatt.discoverServices();
-                    mGatt = gatt;
-                    break;
-                case BluetoothProfile.STATE_DISCONNECTED:
-                    Log.e("gattCallback", "STATE_DISCONNECTED");
-                    final BluetoothGatt gatti = gatt;
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            gatti.connect();
-                        }
-                    }, 5000);
-                    break;
-                default:
-                    Log.e("gattCallback", "STATE_OTHER");
-            }
-
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            List<BluetoothGattService> services = gatt.getServices();
-            Log.i("onServicesDiscovered", services.toString());
-            final BluetoothGattCharacteristic chara;
-            for (BluetoothGattService service : services) {
-                Log.i("onServicesDiscoveredSVC", service.getUuid().toString());
-                for (BluetoothGattCharacteristic gattCharacteristic : service.getCharacteristics()) {
-                    Log.i("onServicesDisSVCGATT", gattCharacteristic.getUuid().toString());
-                }
-            }
-            gatt.readCharacteristic(services.get(3).getCharacteristics().get(0));
-            gatt.setCharacteristicNotification(services.get(3).getCharacteristics().get(0), true);
-        }
-
-        @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            BluetoothGattCharacteristic characteristic =
-                    gatt.getService(SH_H8_UUID)
-                            .getCharacteristic(SH_H8_UUID);
-            characteristic.setValue(new byte[]{1, 1});
-            gatt.writeCharacteristic(characteristic);
-        }
-
-
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic
-                                                 characteristic, int status) {
-            Log.i("onCharacteristicRead", characteristic.toString());
-            Log.i("onCharacteristicRead", characteristic.getStringValue(0));
-        }
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.i("CHARCHA", new String(characteristic.getValue()));
-        }
-
-        @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            super.onCharacteristicWrite(gatt, characteristic, status);
-            Log.i("onCharacteristicWrite", "onCharacteristicWrite " + characteristic.getUuid().toString());
-
-            if (SH_H8_RX_TX.equals(characteristic.getUuid().toString())) {
-                Log.d("onCharacteristicWrite", "Received data RX: " + characteristic.getStringValue(0));
-            }
-        }
-    };
 }
