@@ -28,6 +28,10 @@ public class Manager {
         changeActive(eshoe);
     }
 
+    public void connectToNewDevice(EShoe device){
+        changeActive(device);
+    }
+
     public void changeActive(EShoe newActive){
         if (isActualConnected()){
             disconnectActual();

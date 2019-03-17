@@ -7,4 +7,6 @@
     <string name="debug_noinfo">Sin información</string>
     <string name="debug_nodevice">Sin dispositivo</string>
     <string name="device_getData">Obtener Dato</string>
+    <string name="app_settings">Ajustes</string>
+    <string name="app_debug_action">Activar Debug</string>
 </resources>

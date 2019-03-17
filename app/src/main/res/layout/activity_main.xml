@@ -10,18 +10,15 @@
         android:id="@+id/buttonSend"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="147dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="149dp"
+        android:layout_marginEnd="47dp"
         android:layout_marginBottom="8dp"
         android:onClick="onBtnSend"
         android:text="@string/device_getData"
         app:layout_constraintBottom_toTopOf="@+id/lblDebug"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.196" />
+        app:layout_constraintVertical_bias="0.26999998" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton"
@@ -47,25 +44,54 @@
         android:layout_height="217dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="72dp"
+        android:layout_marginBottom="240dp"
         android:text="@string/debug_noinfo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.555"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/lblDevice"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="28dp"
         android:layout_marginTop="129dp"
-        android:layout_marginEnd="310dp"
+        android:layout_marginEnd="26dp"
         android:layout_marginBottom="74dp"
         android:text="@string/debug_nodevice"
         app:layout_constraintBottom_toTopOf="@+id/lblDebug"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonSend"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.462" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="43dp"
+        android:layout_marginEnd="31dp"
+        android:layout_marginBottom="39dp"
+        android:onClick="onBtnScan"
+        android:text="@string/button_scan"
+        app:layout_constraintBottom_toTopOf="@+id/lblDevice"
+        app:layout_constraintEnd_toStartOf="@+id/buttonSend"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <SurfaceView
+        android:id="@+id/surfaceData"
+        android:layout_width="344dp"
+        android:layout_height="221dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lblDebug" />
 
 </android.support.constraint.ConstraintLayout>

@@ -12,6 +12,10 @@ public final class EShoeUtils {
         // Private constructor
     }
 
+    public static EShoe getVirtualTestDevice(){
+        return new VirtualEShoe();
+    }
+
     /*
     *
     * For learning proposes the data packets are programmatic generated but a more elegant way to
@@ -117,7 +121,7 @@ public final class EShoeUtils {
 
     private static EShoeData putData(EShoeData data, byte[] buffer, int offset, int numData){
         for (int i = 0; i < numData; i++){
-            data.setData(i + 1, ByteBuffer.wrap(buffer, offset + 1 + (5 * i),4).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+            data.setData(i + 1, ByteBuffer.wrap(buffer, offset + 1 + (5 * i),4).order(ByteOrder.BIG_ENDIAN).getFloat());
         }
         return data;
     }

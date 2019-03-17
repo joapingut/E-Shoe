@@ -22,7 +22,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     public static final int MAX_RECON_NUMBER = 4;
     public static final int RECON_DELAY = 5000;
     public static final int WRITE_DELAY = 10;
-    public static final int RESPONSE_DELAY = 150;
+    public static final int RESPONSE_DELAY = 200;
     public static final int BUFFER_TAM = 256;
 
     private BluetoothGatt mGatt;
@@ -119,7 +119,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     }
 
     private void writeSerialString(byte[] command) throws InterruptedException {
-        if (mGatt != null){
+        if (mGatt != null && this.getStatus() == EShoeStatus.CONNECTED){
             BluetoothGattCharacteristic chara = mGatt.getService(SH_H8_UUID).getCharacteristic(SH_H8_RX_TX);
             int size = 20;
             if (command.length > 20){

@@ -47,7 +47,7 @@ public class ScanActivity extends AppCompatActivity {
                     Log.i("callbackType", String.valueOf(callbackType));
                     Log.i("result", result.toString());
                     BluetoothDevice found = result.getDevice();
-                    if (found.getName().startsWith("TFM")){
+                    if (found != null && found.getName() != null && found.getName().startsWith("TFM")){
                         foundList.put(found.getAddress(), found);
                     }
                 }
