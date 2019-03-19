@@ -22,13 +22,13 @@ public class VirtualEShoe implements EShoe {
     public EShoeData getData() {
         EShoeData result = new EShoeData();
         result.setType(EShoeDataType.DT_DIME);
-        result.setFsr1(0.1F);
-        result.setFsr2(0.3F);
-        result.setFsr3(0.4F);
-        result.setFsr4(0.5F);
-        result.setFsr5(0.6F);
-        result.setFsr6(0.75F);
-        result.setFsr7(1.0F);
+        result.setFsr1(1.1F);
+        result.setFsr2(1.3F);
+        result.setFsr3(1.F);
+        result.setFsr4(0.0F);
+        result.setFsr5(0.0F);
+        result.setFsr6(0.0F);
+        result.setFsr7(2.0F);
         return result;
     }
 

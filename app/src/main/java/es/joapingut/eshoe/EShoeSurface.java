@@ -1,13 +1,29 @@
 package es.joapingut.eshoe;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import es.joapingut.eshoe.dto.EShoeColorPoint;
 import es.joapingut.eshoe.dto.EShoeData;
 
 public class EShoeSurface implements SurfaceHolder.Callback {
+
+    private static final int bitmapHeight = 100;
+    private static final int bitmapWidth = 50;
+
+    private static final EShoeColorPoint[] sensorCoordinates = {
+            new EShoeColorPoint(20,10),
+            new EShoeColorPoint(15,20),
+            new EShoeColorPoint(7,30),
+            new EShoeColorPoint(30,10),
+            new EShoeColorPoint(35,20),
+            new EShoeColorPoint(43,30),
+            new EShoeColorPoint(25,90)
+    };
 
     private Manager manager;
 
@@ -53,15 +69,66 @@ public class EShoeSurface implements SurfaceHolder.Callback {
         Paint paint = new Paint();
         paint.setARGB(255,255,0,0);
 
+        int[] rawcolors = new int[bitmapHeight * bitmapWidth];
+
         if (data != null){
-            canvas.drawRect(75,75,125,125, paint);
-            paint.setARGB(255,255,0, cutColorScale(data.getFsr2()));
-            canvas.drawRect(75,75,125,125, paint);
-            paint.setARGB(255,255,0,cutColorScale(data.getFsr6()));
-            canvas.drawRect(75,125,250,250, paint);
+            for (int i = 0; i < sensorCoordinates.length; i++){
+                EShoeColorPoint p = sensorCoordinates[i];
+                float force = data.getData(i);
+                p.setColor(generatePaintFromScale(100, cutColorScale(force)));
+                p.setForce(force);
+            }
+            for (int height = 0; height < bitmapHeight; height++){
+                for (int width = 0; width < bitmapWidth; width++){
+                    //Log.i("Raw", "Index X " + width + " index Y " + height);
+                    rawcolors[height * bitmapWidth + width] = calculateColorForPoint(width, height);
+                }
+            }
+            Bitmap bitmap = Bitmap.createBitmap(rawcolors, bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
+            //Bitmap.createScaledBitmap(bitmap, canvas.getWidth(), canvas.getHeight(), false);
+            canvas.drawBitmap(bitmap, null, canvas.getClipBounds(), null);
+        }
+    }
+
+    private int calculateColorForPoint(int x, int y){
+        double acum = 0;
+        float forceAcum = 0;
+        for(EShoeColorPoint p:sensorCoordinates){
+            if (x == p.x && y == p.y){
+                return Color.BLUE;
+            }
+            acum += distance(x, y, p.x, p.y);
+            forceAcum += p.getForce();
+        }
+        acum = acum / sensorCoordinates.length;
+        forceAcum = forceAcum / sensorCoordinates.length;
+        return generatePaintFromScale((int)acum, cutColorScale(forceAcum));
+    }
+
+    private double distance(int firstX, int firstY, int secondX, int secondY){
+        return Math.sqrt(Math.pow(secondX - firstX, 2) + Math.pow(secondY - firstY, 2));
+    }
+
+    private int generatePaintFromScale(int scale, int force){
+        int value;
+        if (force > 255){
+            value = 255;
+        } else {
+            value = force;
         }
 
-        canvas.drawArc(0,0,50,50,0,25,false, paint);
+        int percent;
+        if (scale > 100){
+            percent = 100;
+        } else if (scale < 0){
+            percent = 0;
+        } else {
+            percent = 100 - scale;
+        }
+
+        value = (percent * value) / 100;
+
+        return Color.argb(255, value,0, 0);
     }
 
     private int cutColorScale(float number){
