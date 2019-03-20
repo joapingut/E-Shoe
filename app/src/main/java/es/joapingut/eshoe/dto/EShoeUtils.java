@@ -187,4 +187,20 @@ public final class EShoeUtils {
         }
         return newOne;
     }
+
+    public static <T extends Comparable> T clipInRange(T number, T max, T min){
+        T result;
+        if (number.compareTo(max) > 0){
+            result = max;
+        } else if (number.compareTo(min) < 0){
+            result = min;
+        } else {
+            result = number;
+        }
+        return result;
+    }
+
+    public static float extrapolate(float x, float inMin, float inMax, float outMin, float outMax){
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
 }
