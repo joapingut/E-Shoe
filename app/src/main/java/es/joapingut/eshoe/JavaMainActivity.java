@@ -44,7 +44,11 @@ public class JavaMainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_SCAN_BT = 2;
 
+    private static final int REQUEST_UPDATE_INTERVAL = 33;
+
     private TextView lbldebug;
+    private TextView lbldevice;
+    private TextView lblfps;
 
     private SurfaceView surfaceData;
     private EShoeSurface eShoeSurface;
@@ -59,6 +63,8 @@ public class JavaMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         lbldebug = findViewById(R.id.lblDebug);
+        lbldevice = findViewById(R.id.lblDevice);
+        lblfps = findViewById(R.id.lblfps);
         surfaceData = findViewById(R.id.surfaceData);
         mHandler = new Handler();
         manager = new Manager(this, mHandler);
@@ -110,6 +116,7 @@ public class JavaMainActivity extends AppCompatActivity {
             return;
         } else if (requestCode == REQUEST_SCAN_BT && resultCode == ScanActivity.SCAN_RESULT_CODE_FOUND){
             BluetoothDevice device = data.getParcelableExtra(ScanActivity.SCAN_RESULT_DEVICE);
+            lbldevice.setText(device.getName());
             manager.connectToNewDevice(device);
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -156,14 +163,8 @@ public class JavaMainActivity extends AppCompatActivity {
 
     public void onBtnSend(View v){
         if (manager.isActualConnected() && manager.isNotAsking()){
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    EShoeData data = manager.queryActiveForData();
-                    lbldebug.setText(new Date() + " - " + data.toString());
-                    eShoeSurface.updateInfo(data);
-                }
-            }, 100);
+            lastFps = new Date().getTime();
+            mStatusChecker.run();
         } else {
             Toast.makeText(this, "Wait Please", Toast.LENGTH_SHORT).show();
         }
@@ -177,6 +178,7 @@ public class JavaMainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mHandler.removeCallbacks(mStatusChecker);
     }
 
     @Override
@@ -190,4 +192,30 @@ public class JavaMainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    long lastFps;
+    int fpscounter;
+
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                EShoeData data = manager.queryActiveForData();
+                lbldebug.setText(new Date() + " - " + data.toString());
+                eShoeSurface.updateInfo(data);
+                long now = new Date().getTime();
+                if (now - lastFps > 1000){
+                    lblfps.setText(fpscounter + " fps");
+                    fpscounter = 0;
+                    lastFps = new Date().getTime();
+                } else {
+                    fpscounter += 1;
+                }
+            } finally {
+                // 100% guarantee that this always happens, even if
+                // your update method throws an exception
+                mHandler.postDelayed(mStatusChecker, REQUEST_UPDATE_INTERVAL);
+            }
+        }
+    };
 }
