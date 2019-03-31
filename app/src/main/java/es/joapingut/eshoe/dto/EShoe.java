@@ -19,6 +19,14 @@ public interface EShoe {
         CONNECTED, DISCONNECTED, CONNECTING, WAITING
     }
 
+    enum EShoeFootPosition{
+        UNKNOWN, PRONATION, NEUTRAL, SUPINATION
+    }
+
+    enum EShoeStepPhase {
+        UNKNOWN, LANDING, REST, LIFT_UP, LIFT
+    }
+
     EShoeData getData();
     EShoeStatus onConnectionStateChange(int newState);
     EShoeStatus getStatus();

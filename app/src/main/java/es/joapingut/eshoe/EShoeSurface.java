@@ -16,9 +16,13 @@ public class EShoeSurface implements SurfaceHolder.Callback {
     private static final int bitmapHeight = 230;
     private static final int bitmapWidth = 130;
 
+    private static final int sensorRadius = 27;
+
     private static final int MAX_DISTANCE_INT = 27;
     private static final float MAX_DISTANCE_FLOAT = 27F;
     private static final double MAX_DISTANCE_DOUBLE = 27.0;
+
+    private boolean simpleMode = true;
 
     /*
     *
@@ -84,25 +88,38 @@ public class EShoeSurface implements SurfaceHolder.Callback {
 
     private void drawTheCanvas(EShoeData data, Canvas canvas) {
         Paint paint = new Paint();
-        paint.setARGB(255,255,0,0);
 
-        int[] rawcolors = new int[bitmapHeight * bitmapWidth];
-
+        canvas.drawColor(Color.WHITE);
         if (data != null){
+            Bitmap bitmap = null;
+            Canvas simpleCV = null;
+            if (simpleMode){
+                bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
+                simpleCV = new Canvas(bitmap);
+            }
             for (int i = 0; i < sensorCoordinates.length; i++){
                 EShoeColorPoint p = sensorCoordinates[i];
                 float force = data.getData(i+1);
                 p.setColor(generatePaintFromScale(EShoeUtils.clipInRange(force, 1F, 0F)));
                 p.setForce(force);
-            }
-            for (int height = 0; height < bitmapHeight; height++){
-                for (int width = 0; width < bitmapWidth; width++){
-                    //Log.i("Raw", "Index X " + width + " index Y " + height);
-                    rawcolors[height * bitmapWidth + width] = calculateColorForPoint(width, height);
+                if (simpleMode){
+                    paint.setColor(p.getColor());
+                    simpleCV.drawCircle(p.x, p.y, MAX_DISTANCE_FLOAT, paint);
                 }
             }
-            Bitmap bitmap = Bitmap.createBitmap(rawcolors, bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
-            //Bitmap.createScaledBitmap(bitmap, canvas.getWidth(), canvas.getHeight(), false);
+            if (!simpleMode){
+                int[] rawcolors = new int[bitmapHeight * bitmapWidth];
+                for (EShoeColorPoint p : sensorCoordinates){
+                    for (int x = -sensorRadius; x < sensorRadius; x++){
+                        for (int y = -sensorRadius; y < sensorRadius; y++){
+                            int height = p.y + y;
+                            int width = p.x + x;
+                            rawcolors[height * bitmapWidth + width] = calculateColorForPoint(width, height);
+                        }
+                    }
+                }
+                bitmap = Bitmap.createBitmap(rawcolors, bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
+            }
             canvas.drawBitmap(bitmap, null, canvas.getClipBounds(), null);
         }
     }
@@ -152,5 +169,9 @@ public class EShoeSurface implements SurfaceHolder.Callback {
         }
 
         return Color.argb(255, r, g, b);
+    }
+
+    public void alterMode() {
+        this.simpleMode = !this.simpleMode;
     }
 }

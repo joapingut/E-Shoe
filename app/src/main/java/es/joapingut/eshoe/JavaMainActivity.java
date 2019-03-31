@@ -44,7 +44,8 @@ public class JavaMainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_SCAN_BT = 2;
 
-    private static final int REQUEST_UPDATE_INTERVAL = 33;
+    private static final int REQUEST_UPDATE_INTERVAL = 40;
+    private static final int REQUEST_DATA_INTERVAL = 40;
 
     private TextView lbldebug;
     private TextView lbldevice;
@@ -164,6 +165,7 @@ public class JavaMainActivity extends AppCompatActivity {
     public void onBtnSend(View v){
         if (manager.isActualConnected() && manager.isNotAsking()){
             lastFps = new Date().getTime();
+            mDataChecker.run();
             mStatusChecker.run();
         } else {
             Toast.makeText(this, "Wait Please", Toast.LENGTH_SHORT).show();
@@ -179,6 +181,7 @@ public class JavaMainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mHandler.removeCallbacks(mStatusChecker);
+        mHandler.removeCallbacks(mDataChecker);
     }
 
     @Override
@@ -188,6 +191,9 @@ public class JavaMainActivity extends AppCompatActivity {
                 Log.i("ActionBar", "Enabling Debug");
                 onBtnTestSystem(null);
                 return true;
+            case R.id.action_enable_complex:
+                this.eShoeSurface.alterMode();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -196,14 +202,29 @@ public class JavaMainActivity extends AppCompatActivity {
     long lastFps;
     int fpscounter;
 
+    Runnable mDataChecker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                manager.queryActiveForData();
+            } finally {
+                mHandler.postDelayed(mDataChecker, REQUEST_DATA_INTERVAL);
+            }
+        }
+    };
+
     Runnable mStatusChecker = new Runnable() {
         @Override
         public void run() {
             try {
-                EShoeData data = manager.queryActiveForData();
-                lbldebug.setText(new Date() + " - " + data.toString());
-                eShoeSurface.updateInfo(data);
+                long sc = new Date().getTime();
+                EShoeData data = manager.getData();
+                long pc = new Date().getTime();
+                if (data != null){
+                    eShoeSurface.updateInfo(data);
+                }
                 long now = new Date().getTime();
+                lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + data.getFootPosition() + " Phase: " + data.getStepPhase() + "\nSteps: " + manager.getNumSteps());
                 if (now - lastFps > 1000){
                     lblfps.setText(fpscounter + " fps");
                     fpscounter = 0;

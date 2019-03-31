@@ -4,6 +4,9 @@ public class EShoeData {
 
     private EShoe.EShoeDataType type;
 
+    private float POSITION_MARGIN = 0.01F;
+    private float PHASE_MARGIN = 0.01F;
+
     private float fsr1;
     private float fsr2;
     private float fsr3;
@@ -58,6 +61,50 @@ public class EShoeData {
                 return fsr7;
             default:
                 return 0;
+        }
+    }
+
+    public EShoe.EShoeStepPhase getStepPhase(){
+        if (type != EShoe.EShoeDataType.DT_DIME){
+            return EShoe.EShoeStepPhase.UNKNOWN;
+        }
+        boolean heelUp = false;
+        boolean headUp = false;
+
+        if (fsr1 < PHASE_MARGIN){
+            heelUp = true;
+        }
+
+        if (fsr2 < PHASE_MARGIN && fsr3 < PHASE_MARGIN && fsr4 < PHASE_MARGIN && fsr5 < PHASE_MARGIN && fsr6 < PHASE_MARGIN && fsr7 < PHASE_MARGIN){
+            headUp = true;
+        }
+
+        if (headUp && heelUp){
+            return EShoe.EShoeStepPhase.LIFT;
+        } else if (headUp){
+            return EShoe.EShoeStepPhase.LANDING;
+        } else if (heelUp){
+            return EShoe.EShoeStepPhase.LIFT_UP;
+        } else {
+            return EShoe.EShoeStepPhase.REST;
+        }
+    }
+
+    public EShoe.EShoeFootPosition getFootPosition(){
+        if (type != EShoe.EShoeDataType.DT_DIME || getStepPhase() != EShoe.EShoeStepPhase.REST){
+            return EShoe.EShoeFootPosition.UNKNOWN;
+        }
+        float rigth = (fsr5 + fsr6 + fsr7) / 3;
+        float left = (fsr2 + fsr3 + fsr4) / 3;
+
+        float diference = rigth - left;
+
+        if (diference > POSITION_MARGIN){
+            return EShoe.EShoeFootPosition.SUPINATION;
+        } else if (diference < POSITION_MARGIN){
+            return EShoe.EShoeFootPosition.PRONATION;
+        } else {
+            return EShoe.EShoeFootPosition.NEUTRAL;
         }
     }
 

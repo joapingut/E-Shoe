@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
@@ -22,7 +23,8 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     public static final int MAX_RECON_NUMBER = 4;
     public static final int RECON_DELAY = 5000;
     public static final int WRITE_DELAY = 10;
-    public static final int RESPONSE_DELAY = 34;
+    public static final int RESPONSE_DELAY = 20;
+    public static final int TIME_BETWEEN_QUERY = 350;
     public static final int BUFFER_TAM = 256;
 
     private BluetoothGatt mGatt;
@@ -34,6 +36,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     private byte[] inputBuffer;
     private int lastByte;
     private Semaphore bufferSemaphore;
+    private Date lastQuery;
 
     public RealEShoe(Context context, Handler mHandler, @NonNull BluetoothDevice device){
         this.mHandler = mHandler;
@@ -42,6 +45,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
         this.lastByte = -1;
         this.bufferSemaphore = new Semaphore(1);
         this.mGatt = device.connectGatt(context, false, this, BluetoothDevice.TRANSPORT_LE);
+        this.lastQuery = new Date();
         mGatt.connect();
     }
 
@@ -52,7 +56,9 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     public EShoeData queryForResponse() throws InterruptedException {
         EShoeData result = new EShoeData();
         result.setType(EShoeDataType.DT_NO_RESPONSE);
-        Thread.sleep(RESPONSE_DELAY);
+        do{
+            Thread.sleep(RESPONSE_DELAY);
+        } while (!canQuery());
         byte[] buffer = readFromBuffer();
         for (int i = 0; i < MAX_RECON_NUMBER; i++) {
             result = EShoeUtils.interpretData(buffer);
@@ -63,6 +69,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
                 break;
             }
         }
+        this.lastQuery = new Date();
         return result;
     }
 
@@ -77,6 +84,10 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
             Log.e("EShoe", "Error on getData", ex);
         }
         return result;
+    }
+
+    private boolean canQuery(){
+        return ((new Date()).getTime() - lastQuery.getTime()) > TIME_BETWEEN_QUERY;
     }
 
     public EShoeStatus onConnectionStateChange(int newState){

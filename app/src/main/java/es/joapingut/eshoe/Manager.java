@@ -7,6 +7,7 @@ import android.os.Handler;
 
 import es.joapingut.eshoe.dto.EShoe;
 import es.joapingut.eshoe.dto.EShoeData;
+import es.joapingut.eshoe.dto.FixedFiFo;
 import es.joapingut.eshoe.dto.RealEShoe;
 
 public class Manager {
@@ -18,9 +19,16 @@ public class Manager {
 
     private boolean asking;
 
+    private FixedFiFo<EShoeData> buffer;
+    private EShoe.EShoeStepPhase lastPhase;
+    private long numSteps;
+
     public Manager (Context context, Handler mHandler){
         this.context = context;
         this.mHandler = mHandler;
+        this.buffer = new FixedFiFo<>(30);
+        this.numSteps = 0;
+        this.lastPhase = null;
     }
 
     public void connectToNewDevice(BluetoothDevice device){
@@ -40,10 +48,28 @@ public class Manager {
     }
 
     public EShoeData queryActiveForData(){
+        if (!isActualConnected()){
+            return null;
+        }
         asking = true;
         EShoeData result = active.getData();
+        buffer.push(result);
+        countSteps(result);
         asking = false;
         return result;
+    }
+
+    public EShoeData getData(){
+        return buffer.pop();
+    }
+
+    private void countSteps(EShoeData data){
+        if (lastPhase == EShoe.EShoeStepPhase.REST && data.getStepPhase() == EShoe.EShoeStepPhase.LIFT){
+            numSteps += 1;
+            lastPhase = EShoe.EShoeStepPhase.LIFT;
+        } else if (lastPhase == EShoe.EShoeStepPhase.LIFT && data.getStepPhase() == EShoe.EShoeStepPhase.REST){
+            lastPhase = EShoe.EShoeStepPhase.REST;
+        }
     }
 
     public boolean isActualConnected(){
@@ -54,6 +80,9 @@ public class Manager {
         do {
             active.onConnectionStateChange(BluetoothProfile.STATE_DISCONNECTED);
         } while (isActualConnected());
+        buffer.clear();
+        lastPhase = null;
+        numSteps = 0;
     }
 
     public boolean isNotAsking() {
@@ -62,5 +91,9 @@ public class Manager {
 
     public boolean isAsking() {
         return asking;
+    }
+
+    public long getNumSteps() {
+        return numSteps;
     }
 }
