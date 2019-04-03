@@ -1,5 +1,7 @@
 package es.joapingut.eshoe.dto;
 
+import android.util.Log;
+
 import org.jetbrains.annotations.Contract;
 
 import java.nio.ByteBuffer;
@@ -121,7 +123,11 @@ public final class EShoeUtils {
 
     private static EShoeData putData(EShoeData data, byte[] buffer, int offset, int numData){
         for (int i = 0; i < numData; i++){
-            data.setData(i + 1, ByteBuffer.wrap(buffer, offset + 1 + (5 * i),4).order(ByteOrder.BIG_ENDIAN).getFloat());
+            try{
+                data.setData(i + 1, ByteBuffer.wrap(buffer, offset + 1 + (5 * i),4).order(ByteOrder.BIG_ENDIAN).getFloat());
+            } catch (IndexOutOfBoundsException ex){
+                Log.e("shet", "What", ex);
+            }
         }
         return data;
     }
@@ -129,8 +135,9 @@ public final class EShoeUtils {
     @Contract(pure = true)
     private static boolean validateHeader(byte[] buffer, int i) {
         if (buffer[i] == 35) {
-            byte tam = buffer[ i + 2];
-            if (buffer[(i + tam) - 1] == (byte)0xF5 && buffer[(i + tam) - 1] == buffer[(i + tam) - 2]) {
+            byte rtam = buffer[ i + 2];
+            int tam = rtam < 0 ? (rtam & 0xFF) : rtam;
+            if ((i + tam) <= buffer.length && buffer[(i + tam) - 1] == (byte)0xF5 && buffer[(i + tam) - 1] == buffer[(i + tam) - 2]) {
                 int ch_upper = byteToUnsigned(buffer[(i + tam) - 4]);
                 int ch_down = byteToUnsigned(buffer[(i + tam) - 3]);
                 int checksum = ((ch_upper << 8) + ch_down);

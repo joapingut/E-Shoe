@@ -20,11 +20,11 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     public static final UUID SH_H8_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
     public static final UUID SH_H8_RX_TX = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
 
-    public static final int MAX_RECON_NUMBER = 4;
+    public static final int MAX_RECON_NUMBER = 5;
     public static final int RECON_DELAY = 5000;
-    public static final int WRITE_DELAY = 10;
+    public static final int WRITE_DELAY = 5;
     public static final int RESPONSE_DELAY = 20;
-    public static final int TIME_BETWEEN_QUERY = 350;
+    public static final int TIME_BETWEEN_QUERY = 35;
     public static final int BUFFER_TAM = 256;
 
     private BluetoothGatt mGatt;
@@ -133,18 +133,21 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
         if (mGatt != null && this.getStatus() == EShoeStatus.CONNECTED){
             BluetoothGattCharacteristic chara = mGatt.getService(SH_H8_UUID).getCharacteristic(SH_H8_RX_TX);
             int size = 20;
-            if (command.length > 20){
+            if (command.length > 19){
                 for (int i = 0; i < command.length; i += size) {
                     chara.setValue(Arrays.copyOfRange(command, i, Math.min(command.length, i + size)));
                     mGatt.writeCharacteristic(chara);
                     Thread.sleep(WRITE_DELAY);
                 }
             } else {
-                for (int i = 0; i < command.length; i++ ){
+                /*for (int i = 0; i < command.length; i++ ){
                     chara.setValue(Arrays.copyOfRange(command, i, i + 1));
                     mGatt.writeCharacteristic(chara);
                     Thread.sleep(WRITE_DELAY);
-                }
+                }*/
+                chara.setValue(command);
+                mGatt.writeCharacteristic(chara);
+                Thread.sleep(WRITE_DELAY);
                 /*
                 chara.setValue(command);
                 mGatt.writeCharacteristic(chara);
@@ -184,9 +187,10 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
 
     @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        Log.d("RealEShoe", "Device " + mGatt.getDevice().getName() + " read value: " + new String(characteristic.getValue()));
+        byte[] value = characteristic.getValue();
+        Log.d("RealEShoe", "Device " + mGatt.getDevice().getName() + " read value: " + new String(characteristic.getValue()) + " " + System.currentTimeMillis());
         try {
-            writeToBuffer(characteristic.getValue());
+            writeToBuffer(value);
         } catch (InterruptedException ex){
             Log.e("RealEShoe", "Device " + mGatt.getDevice().getName() + " error writing to buffer", ex);
         }

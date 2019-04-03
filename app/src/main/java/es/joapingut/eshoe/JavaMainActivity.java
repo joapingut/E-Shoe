@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import java.util.Date;
 
+import es.joapingut.eshoe.dto.EShoe;
 import es.joapingut.eshoe.dto.EShoeData;
 import es.joapingut.eshoe.dto.EShoeUtils;
 
@@ -45,7 +46,8 @@ public class JavaMainActivity extends AppCompatActivity {
     private static final int REQUEST_SCAN_BT = 2;
 
     private static final int REQUEST_UPDATE_INTERVAL = 40;
-    private static final int REQUEST_DATA_INTERVAL = 40;
+    private static final int REQUEST_DATA_INTERVAL = 10;
+    private static final int REQUEST_DATA_SLEEP_INTERVAL = 250;
 
     private TextView lbldebug;
     private TextView lbldevice;
@@ -57,6 +59,9 @@ public class JavaMainActivity extends AppCompatActivity {
     private Manager manager;
 
     private BluetoothAdapter mBluetoothAdapter;
+
+    private boolean runDataChecker;
+    private boolean pauseDataChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +112,7 @@ public class JavaMainActivity extends AppCompatActivity {
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
         }
+        pauseDataChecker = false;
     }
 
     @Override
@@ -133,6 +139,7 @@ public class JavaMainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        pauseDataChecker = true;
     }
 
     public void onBtnTestSystem(View v){
@@ -165,7 +172,7 @@ public class JavaMainActivity extends AppCompatActivity {
     public void onBtnSend(View v){
         if (manager.isActualConnected() && manager.isNotAsking()){
             lastFps = new Date().getTime();
-            mDataChecker.run();
+            mDataChecker.start();
             mStatusChecker.run();
         } else {
             Toast.makeText(this, "Wait Please", Toast.LENGTH_SHORT).show();
@@ -181,7 +188,7 @@ public class JavaMainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mHandler.removeCallbacks(mStatusChecker);
-        mHandler.removeCallbacks(mDataChecker);
+        runDataChecker = false;
     }
 
     @Override
@@ -202,13 +209,21 @@ public class JavaMainActivity extends AppCompatActivity {
     long lastFps;
     int fpscounter;
 
-    Runnable mDataChecker = new Runnable() {
+    Thread mDataChecker = new Thread() {
         @Override
         public void run() {
-            try {
-                manager.queryActiveForData();
-            } finally {
-                mHandler.postDelayed(mDataChecker, REQUEST_DATA_INTERVAL);
+            runDataChecker = true;
+            pauseDataChecker = false;
+            while (runDataChecker){
+                try{
+                    while (pauseDataChecker){
+                        Thread.sleep(REQUEST_DATA_SLEEP_INTERVAL);
+                    }
+                    manager.queryActiveForData();
+                    Thread.sleep(REQUEST_DATA_INTERVAL);
+                } catch (InterruptedException ex){
+                    Log.e("", "Cannot sleep on DataCheckerThread");
+                }
             }
         }
     };
@@ -217,18 +232,23 @@ public class JavaMainActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                long sc = new Date().getTime();
+                long sc = System.currentTimeMillis();
                 EShoeData data = manager.getData();
-                long pc = new Date().getTime();
-                if (data != null){
+                long pc = System.currentTimeMillis();
+                if (data != null && data.getType() == EShoe.EShoeDataType.DT_DIME){
                     eShoeSurface.updateInfo(data);
                 }
-                long now = new Date().getTime();
-                lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + data.getFootPosition() + " Phase: " + data.getStepPhase() + "\nSteps: " + manager.getNumSteps());
+                long now = System.currentTimeMillis();
+                if (data != null){
+                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + data.getFootPosition() + " Phase: " + data.getStepPhase() + "\nSteps: " + manager.getNumSteps());
+                } else {
+                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoe.EShoeFootPosition.UNKNOWN + " Phase: " + EShoe.EShoeStepPhase.UNKNOWN + "\nSteps: " + manager.getNumSteps());
+                }
+
                 if (now - lastFps > 1000){
                     lblfps.setText(fpscounter + " fps");
                     fpscounter = 0;
-                    lastFps = new Date().getTime();
+                    lastFps = System.currentTimeMillis();
                 } else {
                     fpscounter += 1;
                 }

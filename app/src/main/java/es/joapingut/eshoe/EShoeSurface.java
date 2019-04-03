@@ -4,8 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.SurfaceHolder;
+
+import java.util.Map;
 
 import es.joapingut.eshoe.dto.EShoeColorPoint;
 import es.joapingut.eshoe.dto.EShoeData;
@@ -23,6 +26,8 @@ public class EShoeSurface implements SurfaceHolder.Callback {
     private static final double MAX_DISTANCE_DOUBLE = 27.0;
 
     private boolean simpleMode = true;
+
+    private Map<Integer, Map<Integer, Double>> distances;
 
     /*
     *
@@ -52,6 +57,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
 
     public EShoeSurface(Manager manager){
         this.manager = manager;
+        this.distances = new ArrayMap<>();
     }
 
     @Override
@@ -139,7 +145,23 @@ public class EShoeSurface implements SurfaceHolder.Callback {
     }
 
     private double distance(int firstX, int firstY, int secondX, int secondY){
-        return Math.sqrt(Math.pow(secondX - firstX, 2) + Math.pow(secondY - firstY, 2));
+        int key = firstY * bitmapWidth + firstX;
+        int innerKey = secondY * bitmapWidth + secondX;
+        if (distances.containsKey(key)){
+            Map<Integer, Double> innerMap = distances.get(key);
+            if (innerMap.containsKey(innerKey)){
+                return innerMap.get(innerKey);
+            }
+        }
+        double distance = Math.sqrt(Math.pow(secondX - firstX, 2) + Math.pow(secondY - firstY, 2));
+        if (distances.containsKey(key)){
+            distances.get(key).put(innerKey, distance);
+        } else {
+            Map<Integer, Double> innerMap = new ArrayMap<>();
+            innerMap.put(innerKey, distance);
+            distances.put(key, innerMap);
+        }
+        return distance;
     }
 
     private int generatePaintFromScale(float force){
