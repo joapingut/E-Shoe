@@ -185,7 +185,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
         } else {
             percent = (force - 0.5F) * 2;
             r = 255;
-            g = 255 - (int)(255 * percent);
+            g = 255 - (int)(255 * (percent > 1.0F ? 1.0F : percent));
             b = 0;
         }
 
