@@ -1,6 +1,8 @@
 package es.joapingut.eshoe.dto;
 
-public class EShoeData {
+import java.io.Serializable;
+
+public class EShoeData implements Serializable {
 
     private EShoe.EShoeDataType type;
 

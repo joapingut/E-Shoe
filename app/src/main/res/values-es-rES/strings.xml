@@ -11,4 +11,6 @@
     <string name="app_debug_action">Activar Debug</string>
     <string name="device_name">Dispositivo Virtual</string>
     <string name="lbl_datapersecond">Frames por segundo</string>
+    <string name="total_steps">Pasos totales</string>
+    <string name="average_lbl">Media</string>
 </resources>

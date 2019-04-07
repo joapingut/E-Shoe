@@ -1,6 +1,8 @@
 package es.joapingut.eshoe.dto;
 
-public class FixedFiFo<T> {
+import java.io.Serializable;
+
+public class FixedFiFo<T> implements Serializable {
 
     private T[] data;
 
