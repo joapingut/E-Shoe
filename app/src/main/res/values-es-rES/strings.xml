@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_scan">Escanear</string>
+    <string name="image_example">Imagen de ejemplo de un dispositivo</string>
+    <string name="scan_empty_body">No se han encontrado dispositivos, por favor, asegurese de que está bien conectado</string>
+    <string name="scan_empty_header">Sin resultados</string>
+    <string name="debug_noinfo">Sin información</string>
+    <string name="debug_nodevice">Sin dispositivo</string>
+    <string name="device_getData">Obtener Dato</string>
+    <string name="app_settings">Ajustes</string>
+    <string name="app_debug_action">Activar Debug</string>
+</resources>
