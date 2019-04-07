@@ -1,20 +1,14 @@
 package es.joapingut.eshoe;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -22,8 +16,6 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +25,6 @@ import es.joapingut.eshoe.dto.EShoe;
 import es.joapingut.eshoe.dto.EShoeData;
 import es.joapingut.eshoe.dto.EShoeUtils;
 
-import static android.os.VibrationEffect.*;
 
 /**
  * https://stackoverflow.com/questions/42648150/simple-android-ble-scanner
@@ -96,7 +87,7 @@ public class JavaMainActivity extends AppCompatActivity {
         }
 
         SurfaceHolder surfaceDataHolder = surfaceData.getHolder();
-        eShoeSurface = new EShoeSurface(manager);
+        eShoeSurface = new EShoeSurface(this);
         surfaceDataHolder.addCallback(eShoeSurface);
     }
 
@@ -143,43 +134,29 @@ public class JavaMainActivity extends AppCompatActivity {
     }
 
     public void onBtnTestSystem(View v){
+        lbldevice.setText(getString(R.string.device_name));
         this.manager.connectToNewDevice(EShoeUtils.getVirtualTestDevice());
     }
 
-
-    public void onBtnScan(View v){
-        NotificationManager nm = (NotificationManager) getSystemService( NOTIFICATION_SERVICE);
-        Notification notif = new Notification();
-        notif.ledARGB = 0xFFff0000;
-        notif.flags = Notification.FLAG_SHOW_LIGHTS;
-        notif.ledOnMS = 100;
-        notif.ledOffMS = 100;
-
-        Notification.Builder bui = new Notification.Builder(this).setLights(0xFFff0000, 500, 100).setSmallIcon(android.R.drawable.ic_media_play);
-        nm.notify(5, bui.build());
-
-        //nm.notify(5, notif);
-
-        Vibrator vibrat = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrat.vibrate(createOneShot(500, DEFAULT_AMPLITUDE));
-        } else {
-            //deprecated in API 26
-            vibrat.vibrate(500);
-        }
-    }
-
     public void onBtnSend(View v){
-        if (manager.isActualConnected() && manager.isNotAsking()){
-            lastFps = new Date().getTime();
-            mDataChecker.start();
-            mStatusChecker.run();
+        if (manager.isActualConnected()){
+            if (runDataChecker){
+                Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show();
+                mHandler.removeCallbacks(mStatusChecker);
+                runDataChecker = false;
+            } else {
+                lastFps = new Date().getTime();
+                mDataChecker.start();
+                mStatusChecker.run();
+            }
         } else {
             Toast.makeText(this, "Wait Please", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void onBtnToScan(View v){
+        mHandler.removeCallbacks(mStatusChecker);
+        runDataChecker = false;
         Intent intent = new Intent(this, ScanActivity.class);
         startActivityForResult(intent, REQUEST_SCAN_BT);
     }

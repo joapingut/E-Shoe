@@ -208,6 +208,11 @@ public final class EShoeUtils {
     }
 
     public static float extrapolate(float x, float inMin, float inMax, float outMin, float outMax){
+        if (x > inMax){
+            return outMax;
+        } else if (x < inMin){
+            return outMin;
+        }
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 }
