@@ -69,6 +69,8 @@ public class Manager {
             lastPhase = EShoe.EShoeStepPhase.LIFT;
         } else if (lastPhase == EShoe.EShoeStepPhase.LIFT && data.getStepPhase() == EShoe.EShoeStepPhase.REST){
             lastPhase = EShoe.EShoeStepPhase.REST;
+        } else if (data.getStepPhase() != EShoe.EShoeStepPhase.UNKNOWN){
+            lastPhase = data.getStepPhase();
         }
     }
 
