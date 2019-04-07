@@ -9,4 +9,6 @@
     <string name="device_getData">Obtener Dato</string>
     <string name="app_settings">Ajustes</string>
     <string name="app_debug_action">Activar Debug</string>
+    <string name="device_name">Dispositivo Virtual</string>
+    <string name="lbl_datapersecond">Frames por segundo</string>
 </resources>

@@ -1,6 +1,8 @@
 package es.joapingut.eshoe;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,25 +23,12 @@ public class EShoeSurface implements SurfaceHolder.Callback {
 
     private static final int sensorRadius = 27;
 
-    private static final int MAX_DISTANCE_INT = 27;
-    private static final float MAX_DISTANCE_FLOAT = 27F;
+    private static final float MAX_DISTANCE_SIMPLE_FLOAT = 13F;
     private static final double MAX_DISTANCE_DOUBLE = 27.0;
 
     private boolean simpleMode = true;
 
     private Map<Integer, Map<Integer, Double>> distances;
-
-    /*
-    *
-    * new EShoeColorPoint(25,90),
-            new EShoeColorPoint(7,30),
-            new EShoeColorPoint(20,10),
-            new EShoeColorPoint(15,20),
-            new EShoeColorPoint(30,10),
-            new EShoeColorPoint(43,30),
-            new EShoeColorPoint(35,20)
-    *
-    * */
 
     private static final EShoeColorPoint[] sensorCoordinates = {
             new EShoeColorPoint(15 + 50,15 + 180),
@@ -51,13 +40,17 @@ public class EShoeSurface implements SurfaceHolder.Callback {
             new EShoeColorPoint(15 + 70,15 + 40)
     };
 
-    private Manager manager;
+    private final Bitmap siluet;
+
+    private Context context;
 
     private SurfaceHolder holder;
 
-    public EShoeSurface(Manager manager){
-        this.manager = manager;
+    public EShoeSurface(Context context){
+        this.context = context;
         this.distances = new ArrayMap<>();
+        this.siluet = BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.silueta);
     }
 
     @Override
@@ -110,7 +103,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
                 p.setForce(force);
                 if (simpleMode){
                     paint.setColor(p.getColor());
-                    simpleCV.drawCircle(p.x, p.y, MAX_DISTANCE_FLOAT, paint);
+                    simpleCV.drawCircle(p.x, p.y, MAX_DISTANCE_SIMPLE_FLOAT, paint);
                 }
             }
             if (!simpleMode){
@@ -127,6 +120,12 @@ public class EShoeSurface implements SurfaceHolder.Callback {
                 bitmap = Bitmap.createBitmap(rawcolors, bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
             }
             canvas.drawBitmap(bitmap, null, canvas.getClipBounds(), null);
+
+            /*Drawable d = context.getDrawable(R.drawable.silueta);
+            d.setBounds(21, 0, 109, 230);
+            d.draw(canvas);*/
+            canvas.drawBitmap(siluet, null, canvas.getClipBounds(), null);
+
         }
     }
 
