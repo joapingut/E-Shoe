@@ -3,7 +3,9 @@ package es.joapingut.eshoe.dto;
 import android.graphics.Color;
 import android.graphics.Point;
 
-public class EShoeColorPoint extends Point {
+import java.io.Serializable;
+
+public class EShoeColorPoint extends Point implements Serializable {
 
     private int color = Color.BLACK;
 

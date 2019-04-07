@@ -1,6 +1,8 @@
 package es.joapingut.eshoe.dto;
 
-public interface EShoe {
+import java.io.Serializable;
+
+public interface EShoe extends Serializable {
 
     enum EShoeDataType {
         DT_OK, DT_NOK, DT_PING, DT_DIME, DT_FSR, DT_NO_RESPONSE;
