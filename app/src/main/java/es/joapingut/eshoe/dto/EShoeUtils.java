@@ -1,5 +1,7 @@
 package es.joapingut.eshoe.dto;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.util.Log;
 
 import org.jetbrains.annotations.Contract;
@@ -7,8 +9,12 @@ import org.jetbrains.annotations.Contract;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EShoeUtils {
+
+    private static Map<Integer, String> cachedString;
 
     private EShoeUtils(){
         // Private constructor
@@ -214,5 +220,22 @@ public final class EShoeUtils {
             return outMin;
         }
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
+    public static String getStringByLocal(Context context, int id) {
+        if(cachedString == null){
+            cachedString = new HashMap<>();
+        }
+        if (cachedString.containsKey(id)){
+            return cachedString.get(id);
+        } else {
+            Configuration configuration = new Configuration(context.getResources().getConfiguration());
+            configuration.setLocale(context.getResources().getConfiguration().getLocales().get(0));
+            String value = context.createConfigurationContext(configuration).getResources().getString(id);
+            if (value != null){
+                cachedString.put(id, value);
+            }
+            return value;
+        }
     }
 }

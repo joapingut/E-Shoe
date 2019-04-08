@@ -1,6 +1,10 @@
 package es.joapingut.eshoe.dto;
 
-public interface EShoe {
+import java.io.Serializable;
+
+import es.joapingut.eshoe.R;
+
+public interface EShoe extends Serializable {
 
     enum EShoeDataType {
         DT_OK, DT_NOK, DT_PING, DT_DIME, DT_FSR, DT_NO_RESPONSE;
@@ -20,11 +24,27 @@ public interface EShoe {
     }
 
     enum EShoeFootPosition{
-        UNKNOWN, PRONATION, NEUTRAL, SUPINATION
+        UNKNOWN(R.string.lbl_unknown), PRONATION(R.string.lbl_pronation), NEUTRAL(R.string.lbl_neutral), SUPINATION(R.string.lbl_supination);
+
+        private int id;
+
+        EShoeFootPosition(int id){
+            this.id = id;
+        }
+
+        public int getId(){return id;}
     }
 
     enum EShoeStepPhase {
-        UNKNOWN, LANDING, REST, LIFT_UP, LIFT
+        UNKNOWN(R.string.lbl_unknown), LANDING(R.string.lbl_landing), REST(R.string.lbl_rest), LIFT_UP(R.string.lbl_lift_up), LIFT(R.string.lbl_lift);
+
+        private int id;
+
+        EShoeStepPhase(int id){
+            this.id = id;
+        }
+
+        public int getId(){return id;}
     }
 
     EShoeData getData();

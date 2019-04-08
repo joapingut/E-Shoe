@@ -11,4 +11,14 @@
     <string name="app_debug_action">Active Debug</string>
     <string name="device_name">Virtual Device</string>
     <string name="lbl_datapersecond">Frames per second</string>
+    <string name="total_steps">Total Steps</string>
+    <string name="average_lbl">Average</string>
+    <string name="lbl_pronation">Pronator</string>
+    <string name="lbl_supination">Supinator</string>
+    <string name="lbl_neutral">Neutral</string>
+    <string name="lbl_unknown">Unknown</string>
+    <string name="lbl_landing">Landing</string>
+    <string name="lbl_lift">Lift</string>
+    <string name="lbl_lift_up">Lift Up</string>
+    <string name="lbl_rest">Rest</string>
 </resources>

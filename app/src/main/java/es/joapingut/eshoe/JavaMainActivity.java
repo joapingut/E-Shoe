@@ -35,6 +35,7 @@ public class JavaMainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_SCAN_BT = 2;
+    private static final int REQUEST_RESULT_SCREEN = 3;
 
     private static final int REQUEST_UPDATE_INTERVAL = 40;
     private static final int REQUEST_DATA_INTERVAL = 10;
@@ -62,9 +63,9 @@ public class JavaMainActivity extends AppCompatActivity {
         lbldebug = findViewById(R.id.lblDebug);
         lbldevice = findViewById(R.id.lblDevice);
         lblfps = findViewById(R.id.lblfps);
-        surfaceData = findViewById(R.id.surfaceData);
+        surfaceData = findViewById(R.id.surfaceResultData);
         mHandler = new Handler();
-        manager = new Manager(this, mHandler);
+        manager = Manager.getManagerInstance(this, mHandler);
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -144,6 +145,8 @@ public class JavaMainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show();
                 mHandler.removeCallbacks(mStatusChecker);
                 runDataChecker = false;
+                Intent intent = new Intent(this, ResultActivity.class);
+                startActivity(intent);
             } else {
                 lastFps = new Date().getTime();
                 mDataChecker.start();
@@ -217,9 +220,9 @@ public class JavaMainActivity extends AppCompatActivity {
                 }
                 long now = System.currentTimeMillis();
                 if (data != null){
-                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + data.getFootPosition() + " Phase: " + data.getStepPhase() + "\nSteps: " + manager.getNumSteps());
+                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(), data.getFootPosition().getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),data.getStepPhase().getId()) + "\nSteps: " + manager.getNumSteps());
                 } else {
-                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoe.EShoeFootPosition.UNKNOWN + " Phase: " + EShoe.EShoeStepPhase.UNKNOWN + "\nSteps: " + manager.getNumSteps());
+                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeFootPosition.UNKNOWN.getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeStepPhase.UNKNOWN.getId()) + "\nSteps: " + manager.getNumSteps());
                 }
 
                 if (now - lastFps > 1000){
