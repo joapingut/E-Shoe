@@ -13,4 +13,12 @@
     <string name="lbl_datapersecond">Frames por segundo</string>
     <string name="total_steps">Pasos totales</string>
     <string name="average_lbl">Media</string>
+    <string name="lbl_pronation">Pronador</string>
+    <string name="lbl_supination">Supinador</string>
+    <string name="lbl_neutral">Neutro</string>
+    <string name="lbl_unknown">Desconocido</string>
+    <string name="lbl_rest">Reposo</string>
+    <string name="lbl_lift_up">Levantando</string>
+    <string name="lbl_lift">En el aire</string>
+    <string name="lbl_landing">Apoyando</string>
 </resources>

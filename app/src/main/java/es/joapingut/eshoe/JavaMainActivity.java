@@ -220,9 +220,9 @@ public class JavaMainActivity extends AppCompatActivity {
                 }
                 long now = System.currentTimeMillis();
                 if (data != null){
-                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + data.getFootPosition() + " Phase: " + data.getStepPhase() + "\nSteps: " + manager.getNumSteps());
+                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(), data.getFootPosition().getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),data.getStepPhase().getId()) + "\nSteps: " + manager.getNumSteps());
                 } else {
-                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoe.EShoeFootPosition.UNKNOWN + " Phase: " + EShoe.EShoeStepPhase.UNKNOWN + "\nSteps: " + manager.getNumSteps());
+                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeFootPosition.UNKNOWN.getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeStepPhase.UNKNOWN.getId()) + "\nSteps: " + manager.getNumSteps());
                 }
 
                 if (now - lastFps > 1000){

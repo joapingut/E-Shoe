@@ -7,7 +7,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
 
+import es.joapingut.eshoe.dto.EShoe;
 import es.joapingut.eshoe.dto.EShoeData;
+import es.joapingut.eshoe.dto.EShoeUtils;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -49,6 +51,6 @@ public class ResultActivity extends AppCompatActivity {
             }
         }, 2000);
         lblTotalSteps.setText(String.valueOf(manager.getNumSteps()));
-        lblTotalAverage.setText(result.getFootPosition().toString());
+        lblTotalAverage.setText(EShoeUtils.getStringByLocal(this, result.getFootPosition().getId()));
     }
 }
