@@ -101,6 +101,7 @@ public class Manager implements Serializable {
 
     public EShoeData getAverageResult(){
         EShoeData data = new EShoeData();
+        data.setType(EShoe.EShoeDataType.DT_DIME);
         for (int i = 1; i <= 7; i++){
             data.setData(i, averageResult.getData(i) / numberOfSamples);
         }
