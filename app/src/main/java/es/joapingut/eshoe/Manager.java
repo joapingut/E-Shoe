@@ -42,7 +42,7 @@ public class Manager implements Serializable {
         this.buffer = new FixedFiFo<>(30);
         this.numSteps = 0;
         this.numberOfSamples = 1;
-        this.lastPhase = null;
+        this.lastPhase = EShoe.EShoeStepPhase.LIFT;
         this.averageResult = new EShoeData();
     }
 
@@ -85,8 +85,6 @@ public class Manager implements Serializable {
             lastPhase = EShoe.EShoeStepPhase.LIFT;
         } else if (lastPhase == EShoe.EShoeStepPhase.LIFT && data.getStepPhase() == EShoe.EShoeStepPhase.REST){
             lastPhase = EShoe.EShoeStepPhase.REST;
-        } else if (data.getStepPhase() != EShoe.EShoeStepPhase.UNKNOWN){
-            lastPhase = data.getStepPhase();
         }
     }
 
