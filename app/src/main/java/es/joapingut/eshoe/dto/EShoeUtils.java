@@ -132,7 +132,7 @@ public final class EShoeUtils {
             try{
                 data.setData(i + 1, ByteBuffer.wrap(buffer, offset + 1 + (5 * i),4).order(ByteOrder.BIG_ENDIAN).getFloat());
             } catch (IndexOutOfBoundsException ex){
-                Log.e("shet", "What", ex);
+                Log.e("EShoe", "Error on wrapping data " + i, ex);
             }
         }
         return data;
