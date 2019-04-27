@@ -137,7 +137,7 @@ public final class EShoeUtils {
         }
         return data;
     }
-
+    
     private static EShoeData putDataFromSingleByte(EShoeData data, byte[] buffer, int offset, int numData){
         for (int i = 0; i < numData; i++){
             try{
@@ -149,7 +149,7 @@ public final class EShoeUtils {
         }
         return data;
     }
-
+    
     @Contract(pure = true)
     private static boolean validateHeader(byte[] buffer, int i) {
         if (buffer[i] == 35) {

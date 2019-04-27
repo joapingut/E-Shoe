@@ -21,4 +21,5 @@
     <string name="lbl_lift_up">Levantando</string>
     <string name="lbl_lift">En el aire</string>
     <string name="lbl_landing">Apoyando</string>
+    <string name="app_foot_change">Cambiar pie</string>
 </resources>

@@ -181,6 +181,9 @@ public class JavaMainActivity extends AppCompatActivity {
             case R.id.action_enable_complex:
                 this.eShoeSurface.alterMode();
                 return true;
+            case R.id.action_change_foot:
+                this.manager.setRightFoot(!this.manager.isRightFoot());
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

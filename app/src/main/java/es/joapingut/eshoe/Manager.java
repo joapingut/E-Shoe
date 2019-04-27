@@ -35,6 +35,7 @@ public class Manager implements Serializable {
     private EShoe.EShoeStepPhase lastPhase;
     private long numSteps;
     private long numberOfSamples;
+    private boolean rightFoot;
 
     private Manager (Context context, Handler mHandler){
         this.context = context;
@@ -44,6 +45,7 @@ public class Manager implements Serializable {
         this.numberOfSamples = 1;
         this.lastPhase = EShoe.EShoeStepPhase.LIFT;
         this.averageResult = new EShoeData();
+        this.rightFoot = true;
     }
 
     public void connectToNewDevice(BluetoothDevice device){
@@ -68,6 +70,7 @@ public class Manager implements Serializable {
         }
         asking = true;
         EShoeData result = active.getData();
+        result.setRight(rightFoot);
         buffer.push(result);
         countSteps(result);
         putOnAverage(result);
@@ -131,5 +134,13 @@ public class Manager implements Serializable {
 
     public long getNumSteps() {
         return numSteps;
+    }
+
+    public boolean isRightFoot() {
+        return rightFoot;
+    }
+
+    public void setRightFoot(boolean rightFoot) {
+        this.rightFoot = rightFoot;
     }
 }

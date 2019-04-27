@@ -16,8 +16,8 @@
 
     <!-- Settings, should always be in the overflow -->
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/app_settings"
+        android:id="@+id/action_change_foot"
+        android:title="@string/app_foot_change"
         app:showAsAction="never" />
 
 </menu>
