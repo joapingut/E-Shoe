@@ -111,7 +111,7 @@ public final class EShoeUtils {
                 break;
             case DT_DIME:
                 result.setType(EShoe.EShoeDataType.DT_DIME);
-                putData(result, buffer, 4, 7);
+                putDataFromSingleByte(result, buffer, 4, 7);
                 break;
             case DT_FSR:
                 result.setType(EShoe.EShoeDataType.DT_FSR);
@@ -133,6 +133,18 @@ public final class EShoeUtils {
                 data.setData(i + 1, ByteBuffer.wrap(buffer, offset + 1 + (5 * i),4).order(ByteOrder.BIG_ENDIAN).getFloat());
             } catch (IndexOutOfBoundsException ex){
                 Log.e("EShoe", "Error on wrapping data " + i, ex);
+            }
+        }
+        return data;
+    }
+
+    private static EShoeData putDataFromSingleByte(EShoeData data, byte[] buffer, int offset, int numData){
+        for (int i = 0; i < numData; i++){
+            try{
+                int value = byteToUnsigned(buffer[offset + i]);
+                data.setData(i + 1, (value / 255F));
+            } catch (IndexOutOfBoundsException ex){
+                Log.e("shet", "What", ex);
             }
         }
         return data;
