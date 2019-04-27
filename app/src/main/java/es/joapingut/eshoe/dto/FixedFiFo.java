@@ -15,6 +15,7 @@ public class FixedFiFo<T> implements Serializable {
         data = (T[]) new Object[size];
         head = 0;
         tail = 0;
+        this.size = size;
     }
 
     public void push(T object){
