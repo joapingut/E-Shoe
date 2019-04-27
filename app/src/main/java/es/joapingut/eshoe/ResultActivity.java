@@ -37,6 +37,7 @@ public class ResultActivity extends AppCompatActivity {
 
         SurfaceHolder surfaceDataHolder = surfaceData.getHolder();
         eShoeSurface = new EShoeSurface(this);
+        eShoeSurface.alterMode();
         surfaceDataHolder.addCallback(eShoeSurface);
         result = manager.getAverageResult();
     }
