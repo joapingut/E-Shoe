@@ -6,8 +6,10 @@ public class EShoeData implements Serializable {
 
     private EShoe.EShoeDataType type;
 
-    private float POSITION_MARGIN = 0.01F;
-    private float PHASE_MARGIN = 0.01F;
+    private static final float POSITION_MARGIN = 0.1F;
+    private static final float PHASE_MARGIN = 0.1F;
+
+    private boolean isRight;
 
     private float fsr1;
     private float fsr2;
@@ -102,9 +104,9 @@ public class EShoeData implements Serializable {
         float diference = rigth - left;
 
         if (diference > POSITION_MARGIN){
-            return EShoe.EShoeFootPosition.SUPINATION;
+            return isRight ? EShoe.EShoeFootPosition.SUPINATION : EShoe.EShoeFootPosition.PRONATION;
         } else if (diference < POSITION_MARGIN){
-            return EShoe.EShoeFootPosition.PRONATION;
+            return isRight ? EShoe.EShoeFootPosition.PRONATION : EShoe.EShoeFootPosition.SUPINATION;
         } else {
             return EShoe.EShoeFootPosition.NEUTRAL;
         }
@@ -174,10 +176,19 @@ public class EShoeData implements Serializable {
         this.type = type;
     }
 
+    public boolean isRight() {
+        return isRight;
+    }
+
+    public void setRight(boolean right) {
+        isRight = right;
+    }
+
     @Override
     public String toString() {
         return "EShoeData{" +
                 "type=" + type +
+                ", right=" + isRight +
                 ", fsr1=" + fsr1 +
                 ", fsr2=" + fsr2 +
                 ", fsr3=" + fsr3 +

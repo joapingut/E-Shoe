@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
     };
 
     private final Bitmap siluet;
+    private final Bitmap flippedSiluet;
 
     private Context context;
 
@@ -51,6 +53,9 @@ public class EShoeSurface implements SurfaceHolder.Callback {
         this.distances = new ArrayMap<>();
         this.siluet = BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.silueta);
+        Matrix matrix = new Matrix();
+        matrix.postScale(-1,1);
+        this.flippedSiluet = Bitmap.createBitmap(siluet, 0, 0, siluet.getWidth(), siluet.getHeight(), matrix, true);
     }
 
     @Override
@@ -124,8 +129,11 @@ public class EShoeSurface implements SurfaceHolder.Callback {
             /*Drawable d = context.getDrawable(R.drawable.silueta);
             d.setBounds(21, 0, 109, 230);
             d.draw(canvas);*/
-            canvas.drawBitmap(siluet, null, canvas.getClipBounds(), null);
-
+            if (data.isRight()){
+                canvas.drawBitmap(siluet, null, canvas.getClipBounds(), null);
+            } else {
+                canvas.drawBitmap(flippedSiluet, null, canvas.getClipBounds(), null);
+            }
         }
     }
 
