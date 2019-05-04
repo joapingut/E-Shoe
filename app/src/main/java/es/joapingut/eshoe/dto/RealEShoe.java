@@ -20,10 +20,10 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     public static final UUID SH_H8_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
     public static final UUID SH_H8_RX_TX = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
 
-    public static final int MAX_RECON_NUMBER = 5;
+    public static final int MAX_RECON_NUMBER = 10;
     public static final int RECON_DELAY = 5000;
     public static final int WRITE_DELAY = 5;
-    public static final int RESPONSE_DELAY = 25;
+    public static final int RESPONSE_DELAY = 10;
     public static final int TIME_BETWEEN_QUERY = 35;
     public static final int BUFFER_TAM = 256;
 
