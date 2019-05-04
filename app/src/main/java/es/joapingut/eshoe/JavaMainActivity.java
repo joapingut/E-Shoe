@@ -37,7 +37,7 @@ public class JavaMainActivity extends AppCompatActivity {
     private static final int REQUEST_SCAN_BT = 2;
     private static final int REQUEST_RESULT_SCREEN = 3;
 
-    private static final int REQUEST_UPDATE_INTERVAL = 40;
+    private static final int REQUEST_UPDATE_INTERVAL = 25;
     private static final int REQUEST_DATA_INTERVAL = 10;
     private static final int REQUEST_DATA_SLEEP_INTERVAL = 250;
 
@@ -215,25 +215,27 @@ public class JavaMainActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                long sc = System.currentTimeMillis();
-                EShoeData data = manager.getData();
-                long pc = System.currentTimeMillis();
-                if (data != null && data.getType() == EShoe.EShoeDataType.DT_DIME){
-                    eShoeSurface.updateInfo(data);
-                }
-                long now = System.currentTimeMillis();
-                if (data != null){
-                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(), data.getFootPosition().getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),data.getStepPhase().getId()) + "\nSteps: " + manager.getNumSteps());
-                } else {
-                    lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeFootPosition.UNKNOWN.getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeStepPhase.UNKNOWN.getId()) + "\nSteps: " + manager.getNumSteps());
-                }
+                if (!pauseDataChecker){
+                    long sc = System.currentTimeMillis();
+                    EShoeData data = manager.getData();
+                    long pc = System.currentTimeMillis();
+                    if (data != null && data.getType() == EShoe.EShoeDataType.DT_DIME){
+                        eShoeSurface.updateInfo(data);
+                    }
+                    long now = System.currentTimeMillis();
+                    if (data != null){
+                        lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(), data.getFootPosition().getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),data.getStepPhase().getId()) + "\nSteps: " + manager.getNumSteps());
+                    } else {
+                        lbldebug.setText("QUERY: " + (pc - sc) + " PAINT: " + (now - pc) + "\nPosition: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeFootPosition.UNKNOWN.getId()) + " Phase: " + EShoeUtils.getStringByLocal(getApplicationContext(),EShoe.EShoeStepPhase.UNKNOWN.getId()) + "\nSteps: " + manager.getNumSteps());
+                    }
 
-                if (now - lastFps > 1000){
-                    lblfps.setText(fpscounter + " fps");
-                    fpscounter = 0;
-                    lastFps = System.currentTimeMillis();
-                } else {
-                    fpscounter += 1;
+                    if (now - lastFps > 1000){
+                        lblfps.setText(fpscounter + " fps");
+                        fpscounter = 0;
+                        lastFps = System.currentTimeMillis();
+                    } else {
+                        fpscounter += 1;
+                    }
                 }
             } finally {
                 // 100% guarantee that this always happens, even if

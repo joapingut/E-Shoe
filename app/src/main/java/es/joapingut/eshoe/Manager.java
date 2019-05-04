@@ -45,7 +45,7 @@ public class Manager implements Serializable {
         this.numberOfSamples = 1;
         this.lastPhase = EShoe.EShoeStepPhase.LIFT;
         this.averageResult = new EShoeData();
-        this.rightFoot = true;
+        this.rightFoot = false;
     }
 
     public void connectToNewDevice(BluetoothDevice device){
@@ -118,7 +118,7 @@ public class Manager implements Serializable {
             active.onConnectionStateChange(BluetoothProfile.STATE_DISCONNECTED);
         } while (isActualConnected());
         buffer.clear();
-        lastPhase = null;
+        this.lastPhase = EShoe.EShoeStepPhase.LIFT;
         numSteps = 0;
         numberOfSamples = 1;
         this.averageResult = new EShoeData();
