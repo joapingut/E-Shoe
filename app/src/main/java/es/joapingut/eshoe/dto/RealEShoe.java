@@ -23,7 +23,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
     public static final int MAX_RECON_NUMBER = 5;
     public static final int RECON_DELAY = 5000;
     public static final int WRITE_DELAY = 5;
-    public static final int RESPONSE_DELAY = 20;
+    public static final int RESPONSE_DELAY = 25;
     public static final int TIME_BETWEEN_QUERY = 35;
     public static final int BUFFER_TAM = 256;
 
@@ -66,6 +66,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
                 Thread.sleep(RESPONSE_DELAY);
                 buffer = EShoeUtils.mergeByteArray(buffer, readFromBuffer());
             } else {
+                Log.d("RealEShoe", "Milis 2 " + System.currentTimeMillis());
                 break;
             }
         }
@@ -155,6 +156,7 @@ public class RealEShoe extends BluetoothGattCallback implements EShoe {
                 chara.setValue("\n");
                 mGatt.writeCharacteristic(chara);*/
             }
+            Log.d("RealEShoe", "Milis " + System.currentTimeMillis());
         }
     }
 

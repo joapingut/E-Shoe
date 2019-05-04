@@ -43,6 +43,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
 
     private final Bitmap siluet;
     private final Bitmap flippedSiluet;
+    private final int defaultColor;
 
     private Context context;
 
@@ -56,6 +57,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
         Matrix matrix = new Matrix();
         matrix.postScale(-1,1);
         this.flippedSiluet = Bitmap.createBitmap(siluet, 0, 0, siluet.getWidth(), siluet.getHeight(), matrix, true);
+        this.defaultColor = Color.argb(255,153,255,255);
     }
 
     @Override
@@ -173,7 +175,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
 
     private int generatePaintFromScale(float force){
         if (force == 0){
-            return Color.WHITE;
+            return defaultColor;
         }
         boolean lowerhalf = force < 0.5F;
         //float percent = force * (lowerhalf ? 2F : 0.5F);
