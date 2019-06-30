@@ -33,12 +33,12 @@ public class EShoeSurface implements SurfaceHolder.Callback {
 
     private static final EShoeColorPoint[] sensorCoordinates = {
             new EShoeColorPoint(15 + 50,15 + 180),
-            new EShoeColorPoint(15 + 14,15 + 60),
-            new EShoeColorPoint(15 + 40,15 + 20),
-            new EShoeColorPoint(15 + 30,15 + 40),
-            new EShoeColorPoint(15 + 60,15 + 20),
-            new EShoeColorPoint(15 + 86,15 + 60),
-            new EShoeColorPoint(15 + 70,15 + 40)
+            new EShoeColorPoint(15 + 10,15 + 45),
+            new EShoeColorPoint(15 + 40,15 + 45),
+            new EShoeColorPoint(15 + 25,15 + 65),
+            new EShoeColorPoint(15 + 60,15 + 45),
+            new EShoeColorPoint(15 + 90,15 + 45),
+            new EShoeColorPoint(15 + 75,15 + 65)
     };
 
     private final Bitmap siluet;
@@ -175,7 +175,7 @@ public class EShoeSurface implements SurfaceHolder.Callback {
 
     private int generatePaintFromScale(float force){
         if (force == 0){
-            return defaultColor;
+            return simpleMode ? defaultColor : Color.WHITE;
         }
         boolean lowerhalf = force < 0.5F;
         //float percent = force * (lowerhalf ? 2F : 0.5F);
